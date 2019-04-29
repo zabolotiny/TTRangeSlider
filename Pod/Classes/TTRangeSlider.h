@@ -209,4 +209,7 @@ typedef NS_ENUM(NSInteger, LabelPosition) {
  */
 @property (nonatomic, assign) IBInspectable float shadowOpacity;
 
+- (void)setMinString:(NSString*)minString;
+- (void)setMaxString:(NSString*)maxString;
+
 @end

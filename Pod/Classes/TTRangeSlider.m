@@ -170,7 +170,6 @@ static const CGFloat kLabelsFontSize = 12.0f;
     self.sliderLine.cornerRadius = self.lineHeight / 2.0;
     self.sliderLineBetweenHandles.cornerRadius = self.lineHeight / 2.0;
     
-    [self updateLabelValues];
     [self updateHandlePositions];
     [self updateLabelPositions];
 }
@@ -260,19 +259,29 @@ static const CGFloat kLabelsFontSize = 12.0f;
     return CGRectGetMinX(self.sliderLine.frame) + offset;
 }
 
-- (void)updateLabelValues {
-    if (self.hideLabels || [self.numberFormatterOverride isEqual:[NSNull null]]){
-        self.minLabel.string = @"";
-        self.maxLabel.string = @"";
-        return;
-    }
+//- (void)updateLabelValues {
+//    if (self.hideLabels || [self.numberFormatterOverride isEqual:[NSNull null]]){
+//        self.minLabel.string = @"";
+//        self.maxLabel.string = @"";
+//        return;
+//    }
+//
+//    NSNumberFormatter *formatter = (self.numberFormatterOverride != nil) ? self.numberFormatterOverride : self.decimalNumberFormatter;
+//
+//    self.minLabel.string = [formatter stringFromNumber:@(self.selectedMinimum)];
+//    self.maxLabel.string = [formatter stringFromNumber:@(self.selectedMaximum)];
+//
+//    self.minLabelTextSize = [self.minLabel.string sizeWithAttributes:@{NSFontAttributeName:self.minLabelFont}];
+//    self.maxLabelTextSize = [self.maxLabel.string sizeWithAttributes:@{NSFontAttributeName:self.maxLabelFont}];
+//}
 
-    NSNumberFormatter *formatter = (self.numberFormatterOverride != nil) ? self.numberFormatterOverride : self.decimalNumberFormatter;
-
-    self.minLabel.string = [formatter stringFromNumber:@(self.selectedMinimum)];
-    self.maxLabel.string = [formatter stringFromNumber:@(self.selectedMaximum)];
-    
+- (void)setMinString:(NSString*)minString {
+    self.minLabel.string = minString;
     self.minLabelTextSize = [self.minLabel.string sizeWithAttributes:@{NSFontAttributeName:self.minLabelFont}];
+}
+
+- (void)setMaxString:(NSString*)maxString {
+    self.maxLabel.string = maxString;
     self.maxLabelTextSize = [self.maxLabel.string sizeWithAttributes:@{NSFontAttributeName:self.maxLabelFont}];
 }
 
@@ -409,7 +418,6 @@ static const CGFloat kLabelsFontSize = 12.0f;
     [self updateHandlePositions];
     [self updateLabelPositions];
     [CATransaction commit];
-    [self updateLabelValues];
     [self updateAccessibilityElements];
 
     //update the delegate
@@ -614,7 +622,6 @@ static const CGFloat kLabelsFontSize = 12.0f;
 
 -(void)setNumberFormatterOverride:(NSNumberFormatter *)numberFormatterOverride{
     _numberFormatterOverride = numberFormatterOverride;
-    [self updateLabelValues];
 }
 
 -(void)setMinHandleImage:(UIImage *)handleImage{
