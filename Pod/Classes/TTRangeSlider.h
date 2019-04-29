@@ -137,7 +137,12 @@ IB_DESIGNABLE
 /**
  *Handle slider with custom image, you can set custom image for your handle
  */
-@property (nonatomic, strong) UIImage *handleImage;
+@property (nonatomic, strong) UIImage *minHandleImage;
+
+/**
+ *Handle slider with custom image, you can set custom image for your handle
+ */
+@property (nonatomic, strong) UIImage *maxHandleImage;
 
 
 /**
