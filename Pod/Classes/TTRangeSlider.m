@@ -64,8 +64,8 @@ static const CGFloat kLabelsFontSize = 12.0f;
     _hideLabels = NO;
     
     _handleDiameter = 16.0;
-    _selectedHandleDiameterMultiplier = 1.7;
-    
+    _selectedHandleDiameterMultiplier = 1.0;
+
     _lineHeight = 1.0;
     
     _handleBorderWidth = 0.0;
@@ -160,15 +160,18 @@ static const CGFloat kLabelsFontSize = 12.0f;
     [super layoutSubviews];
 
     //positioning for the slider line
-    float barSidePadding = self.barSidePadding;
-    CGRect currentFrame = self.frame;
-    float yMiddle = currentFrame.size.height/2.0;
-    CGPoint lineLeftSide = CGPointMake(barSidePadding, yMiddle);
-    CGPoint lineRightSide = CGPointMake(currentFrame.size.width-barSidePadding, yMiddle);
-    self.sliderLine.frame = CGRectMake(lineLeftSide.x, lineLeftSide.y, lineRightSide.x-lineLeftSide.x, self.lineHeight);
-    
-    self.sliderLine.cornerRadius = self.lineHeight / 2.0;
-    self.sliderLineBetweenHandles.cornerRadius = self.lineHeight / 2.0;
+    if (!self.leftHandleSelected && !self.rightHandleSelected) {
+        float barSidePadding = self.barSidePadding;
+        CGRect currentFrame = self.frame;
+        float yMiddle = currentFrame.size.height/2.0;
+        CGPoint lineLeftSide = CGPointMake(barSidePadding, yMiddle);
+        CGPoint lineRightSide = CGPointMake(currentFrame.size.width-barSidePadding, yMiddle);
+        self.sliderLine.frame = CGRectMake(lineLeftSide.x, lineLeftSide.y, lineRightSide.x-lineLeftSide.x, self.lineHeight);
+        
+        self.sliderLine.cornerRadius = self.lineHeight / 2.0;
+        self.sliderLineBetweenHandles.cornerRadius = self.lineHeight / 2.0;
+    }
+
     
     [self updateHandlePositions];
     [self updateLabelPositions];
@@ -300,7 +303,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
     self.rightHandle.position= rightHandleCenter;
     
     //positioning for the dist slider line
-    self.sliderLineBetweenHandles.frame = CGRectMake(self.leftHandle.position.x, self.sliderLine.frame.origin.y, self.rightHandle.position.x-self.leftHandle.position.x, self.lineHeight);
+    self.sliderLineBetweenHandles.frame = CGRectMake(leftHandleCenter.x, self.sliderLine.frame.origin.y, rightHandleCenter.x-leftHandleCenter.x, self.lineHeight);
 }
 
 - (void)updateLabelPositions {
@@ -497,7 +500,8 @@ static const CGFloat kLabelsFontSize = 12.0f;
         [CATransaction begin];
         [CATransaction setAnimationDuration:0.3];
         [CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut] ];
-        handle.transform = CATransform3DIdentity;
+        self.leftHandle.transform = CATransform3DIdentity;
+        self.rightHandle.transform = CATransform3DIdentity;
 
         //the label above the handle will need to move too if the handle changes size
         [self updateLabelPositions];
@@ -576,7 +580,9 @@ static const CGFloat kLabelsFontSize = 12.0f;
     }
 
     _selectedMinimum = selectedMinimum;
-    [self refresh];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self refresh];
+    });
 }
 
 - (void)setSelectedMaximum:(float)selectedMaximum {
@@ -585,7 +591,9 @@ static const CGFloat kLabelsFontSize = 12.0f;
     }
 
     _selectedMaximum = selectedMaximum;
-    [self refresh];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self refresh];
+    });
 }
 
 -(void)setMinLabelColour:(UIColor *)minLabelColour{
