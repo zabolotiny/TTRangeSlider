@@ -803,6 +803,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
         _leftHandleAccessibilityElement = element;
     }
     _leftHandleAccessibilityElement.frame = self.leftHandle.frame;
+    _leftHandleAccessibilityElement.accessibilityFrame = [self convertRect:self.leftHandle.frame toView:nil];;
     _leftHandleAccessibilityElement.accessibilityTraits = UIAccessibilityTraitAdjustable;
     return _leftHandleAccessibilityElement;
 }
@@ -819,6 +820,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
         _rightHandleAccessbilityElement = element;
     }
     _rightHandleAccessbilityElement.frame = self.rightHandle.frame;
+    _rightHandleAccessbilityElement.accessibilityFrame = [self convertRect:self.rightHandle.frame toView:nil];;
     _rightHandleAccessbilityElement.accessibilityTraits = UIAccessibilityTraitAdjustable;
     return _rightHandleAccessbilityElement;
 }
@@ -848,6 +850,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
     slider.selectedMinimum += slider.step;
     [slider informAboutUpdate];
     self.accessibilityValue = slider.minLabel.string;
+    UIAccessibilityPostNotification(UIAccessibilityLayoutChangedNotification, self);
 }
 
 - (void)accessibilityDecrement {
@@ -855,6 +858,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
     slider.selectedMinimum -= slider.step;
     [slider informAboutUpdate];
     self.accessibilityValue = slider.minLabel.string;
+    UIAccessibilityPostNotification(UIAccessibilityLayoutChangedNotification, self);
 }
 
 - (BOOL)canBecomeFocused {
@@ -874,6 +878,9 @@ static const CGFloat kLabelsFontSize = 12.0f;
     slider.selectedMaximum += slider.step;
     [slider informAboutUpdate];
     self.accessibilityValue = slider.maxLabel.string;
+    [slider updateAccessibilityElements];
+    UIAccessibilityPostNotification(UIAccessibilityLayoutChangedNotification, self);
+    
 }
 
 - (void)accessibilityDecrement {
@@ -881,6 +888,8 @@ static const CGFloat kLabelsFontSize = 12.0f;
     slider.selectedMaximum -= slider.step;
     [slider informAboutUpdate];
     self.accessibilityValue = slider.maxLabel.string;
+    [slider updateAccessibilityElements];
+    UIAccessibilityPostNotification(UIAccessibilityLayoutChangedNotification, self);
 }
 
 - (BOOL)canBecomeFocused {
