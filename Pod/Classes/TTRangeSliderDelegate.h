@@ -19,6 +19,11 @@
 -(void)rangeSlider:(TTRangeSlider *)sender didChangeSelectedMinimumValue:(float)selectedMinimum andMaximumValue:(float)selectedMaximum;
 
 /**
+ * Called when the RangeSlider accessibility values are changed
+ */
+-(void)rangeSliderDidChangeAccessibilityValue:(TTRangeSlider *)sender;
+
+/**
  * Called when the user has finished interacting with the RangeSlider
  */
 - (void)didEndTouchesInRangeSlider:(TTRangeSlider *)sender;

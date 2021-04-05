@@ -29,18 +29,20 @@ const float TEXT_HEIGHT = 14;
 // strong reference needed for UIAccessibilityContainer
 // see http://stackoverflow.com/questions/13462046/custom-uiview-not-showing-accessibility-on-voice-over
 @property (nonatomic, strong) NSMutableArray *accessibleElements;
+@property (nonatomic, strong) UIView *leftHandleAccessibilityElement;
+@property (nonatomic, strong) UIView *rightHandleAccessbilityElement;
 @end
 
 /**
  An accessibility element that increments and decrements the left slider
  */
-@interface TTRangeSliderLeftElement : UIAccessibilityElement
+@interface TTRangeSliderLeftElement : UIView
 @end
 
 /**
  An accessibility element that increments and decrements the right slider
  */
-@interface TTRangeSliderRightElement : UIAccessibilityElement
+@interface TTRangeSliderRightElement : UIView
 @end
 
 static const CGFloat kLabelsFontSize = 12.0f;
@@ -789,44 +791,78 @@ static const CGFloat kLabelsFontSize = 12.0f;
   return [[self accessibleElements] indexOfObject:element];
 }
 
-- (UIAccessibilityElement *)leftHandleAccessibilityElement
+- (UIView *)leftHandleAccessibilityElement
 {
-  TTRangeSliderLeftElement *element = [[TTRangeSliderLeftElement alloc] initWithAccessibilityContainer:self];
-  element.isAccessibilityElement = YES;
-  element.accessibilityLabel = self.minLabelAccessibilityLabel;
-  element.accessibilityHint = self.minLabelAccessibilityHint;
-  element.accessibilityValue = self.minLabel.string;
-  element.accessibilityFrame = [self convertRect:self.leftHandle.frame toView:nil];
-  element.accessibilityTraits = UIAccessibilityTraitAdjustable;
-  return element;
+    if (!_leftHandleAccessibilityElement) {
+        TTRangeSliderLeftElement *element = [[TTRangeSliderLeftElement alloc] initWithFrame:self.leftHandle.frame];
+        [self addSubview: element];
+        element.isAccessibilityElement = YES;
+        element.accessibilityLabel = self.minLabelAccessibilityLabel;
+        element.accessibilityHint = self.minLabelAccessibilityHint;
+        element.accessibilityValue = self.minLabel.string;
+        _leftHandleAccessibilityElement = element;
+    }
+    _leftHandleAccessibilityElement.frame = self.leftHandle.frame;
+    _leftHandleAccessibilityElement.accessibilityTraits = UIAccessibilityTraitAdjustable;
+    return _leftHandleAccessibilityElement;
 }
 
-- (UIAccessibilityElement *)rightHandleAccessbilityElement
+- (UIView *)rightHandleAccessbilityElement
 {
-  TTRangeSliderRightElement *element = [[TTRangeSliderRightElement alloc] initWithAccessibilityContainer:self];
-  element.isAccessibilityElement = YES;
-  element.accessibilityLabel = self.maxLabelAccessibilityLabel;
-  element.accessibilityHint = self.maxLabelAccessibilityHint;
-  element.accessibilityValue = self.maxLabel.string;
-  element.accessibilityFrame = [self convertRect:self.rightHandle.frame toView:nil];
-  element.accessibilityTraits = UIAccessibilityTraitAdjustable;
-  return element;
+    if (!_rightHandleAccessbilityElement) {
+        TTRangeSliderRightElement *element = [[TTRangeSliderRightElement alloc] initWithFrame:self.rightHandle.frame];
+        [self addSubview: element];
+        element.isAccessibilityElement = YES;
+        element.accessibilityLabel = self.maxLabelAccessibilityLabel;
+        element.accessibilityHint = self.maxLabelAccessibilityHint;
+        element.accessibilityValue = self.maxLabel.string;
+        _rightHandleAccessbilityElement = element;
+    }
+    _rightHandleAccessbilityElement.frame = self.rightHandle.frame;
+    _rightHandleAccessbilityElement.accessibilityTraits = UIAccessibilityTraitAdjustable;
+    return _rightHandleAccessbilityElement;
 }
 
+- (NSArray<id<UIFocusEnvironment>> *)preferredFocusEnvironments {
+    return self.accessibilityElements;
+}
+
+- (BOOL)canBecomeFocused {
+    return NO;
+}
+
+- (void)informAboutUpdate {
+    //update the delegate
+    if ([self.delegate respondsToSelector:@selector(rangeSliderDidChangeAccessibilityValue:)]){
+        [self.delegate rangeSliderDidChangeAccessibilityValue:self];
+    }
+
+    [self sendActionsForControlEvents:UIControlEventValueChanged];
+}
 @end
 
 @implementation TTRangeSliderLeftElement
 
 - (void)accessibilityIncrement {
-  TTRangeSlider* slider = (TTRangeSlider*)self.accessibilityContainer;
-  slider.selectedMinimum += slider.step;
-  self.accessibilityValue = slider.minLabel.string;
+    TTRangeSlider* slider = (TTRangeSlider*)self.superview;
+    slider.selectedMinimum += slider.step;
+    [slider informAboutUpdate];
+    self.accessibilityValue = slider.minLabel.string;
 }
 
 - (void)accessibilityDecrement {
-  TTRangeSlider* slider = (TTRangeSlider*)self.accessibilityContainer;
-  slider.selectedMinimum -= slider.step;
-  self.accessibilityValue = slider.minLabel.string;
+    TTRangeSlider* slider = (TTRangeSlider*)self.superview;
+    slider.selectedMinimum -= slider.step;
+    [slider informAboutUpdate];
+    self.accessibilityValue = slider.minLabel.string;
+}
+
+- (BOOL)canBecomeFocused {
+    return YES;
+}
+
+- (BOOL)isAccessibilityElement {
+    return YES;
 }
 
 @end
@@ -834,15 +870,25 @@ static const CGFloat kLabelsFontSize = 12.0f;
 @implementation TTRangeSliderRightElement
 
 - (void)accessibilityIncrement {
-  TTRangeSlider* slider = (TTRangeSlider*)self.accessibilityContainer;
-  slider.selectedMaximum += slider.step;
-  self.accessibilityValue = slider.maxLabel.string;
+    TTRangeSlider* slider = (TTRangeSlider*)self.superview;
+    slider.selectedMaximum += slider.step;
+    [slider informAboutUpdate];
+    self.accessibilityValue = slider.maxLabel.string;
 }
 
 - (void)accessibilityDecrement {
-  TTRangeSlider* slider = (TTRangeSlider*)self.accessibilityContainer;
-  slider.selectedMaximum -= slider.step;
-  self.accessibilityValue = slider.maxLabel.string;
+    TTRangeSlider* slider = (TTRangeSlider*)self.superview;
+    slider.selectedMaximum -= slider.step;
+    [slider informAboutUpdate];
+    self.accessibilityValue = slider.maxLabel.string;
+}
+
+- (BOOL)canBecomeFocused {
+    return YES;
+}
+
+- (BOOL)isAccessibilityElement {
+    return YES;
 }
 
 @end
