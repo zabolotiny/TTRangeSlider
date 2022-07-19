@@ -869,6 +869,15 @@ static const CGFloat kLabelsFontSize = 12.0f;
     return YES;
 }
 
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    UIView *view = [super hitTest:point withEvent:event];
+    if (view == self) {
+        return nil; //avoid delivering touch events to the container view (self)
+    }
+    else{
+        return view; //the subviews will still receive touch events
+    }
+}
 @end
 
 @implementation TTRangeSliderRightElement
@@ -900,5 +909,14 @@ static const CGFloat kLabelsFontSize = 12.0f;
     return YES;
 }
 
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    UIView *view = [super hitTest:point withEvent:event];
+    if (view == self) {
+        return nil; //avoid delivering touch events to the container view (self)
+    }
+    else{
+        return view; //the subviews will still receive touch events
+    }
+}
 @end
 
